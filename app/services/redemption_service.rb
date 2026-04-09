@@ -17,7 +17,7 @@ class RedemptionService
     @reward.update!(stock: @reward.stock - 1)
     redemption = Redemption.create!(user: @user, reward: @reward, points_spent: cost)
 
-    Result.new(redemption: redemption, user: @user.reload)
+    RedemptionResult.new(redemption: redemption, user: @user.reload)
   end
 
   private

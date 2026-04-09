@@ -3,6 +3,7 @@ module Api
     before_action :set_user, only: %i[balance redemption_history]
 
     def balance
+      # Inline JSON: only two scalars — a serializer would add indirection without real payoff.
       render json: {
         user_id: @user.id,
         point_balance: @user.point_balance,
@@ -11,25 +12,13 @@ module Api
 
     def redemption_history
       redemptions = @user.redemptions.includes(:reward).order(created_at: :desc)
-      render json: {
-        redemptions: redemptions.map { |r| redemption_json(r) },
-      }
+      render json: RedemptionHistorySerializer.new(redemptions).as_json
     end
 
     private
 
     def set_user
       @user = User.find(params[:id])
-    end
-
-    def redemption_json(redemption)
-      {
-        id: redemption.id,
-        reward_id: redemption.reward_id,
-        reward_name: redemption.reward.name,
-        points_spent: redemption.points_spent,
-        created_at: redemption.created_at.iso8601(3),
-      }
     end
   end
 end

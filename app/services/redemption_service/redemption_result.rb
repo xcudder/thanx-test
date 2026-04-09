@@ -1,4 +1,4 @@
-class RedemptionService::Result
+class RedemptionService::RedemptionResult
   attr_reader :redemption, :user
 
   def initialize(redemption:, user:)

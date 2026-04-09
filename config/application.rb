@@ -16,7 +16,9 @@ module Thanx
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w(assets tasks))
 
-    config.autoload_paths << Rails.root.join("app/serializers")
+    serializers = Rails.root.join("app/serializers")
+    config.autoload_paths << serializers
+    config.eager_load_paths << serializers
 
     config.generators do |g|
       g.test_framework :rspec
