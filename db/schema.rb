@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_09_145005) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_09_210717) do
   create_table "redemptions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "reward_id", null: false
@@ -29,6 +29,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_145005) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "photo"
+    t.check_constraint "stock >= 0", name: "rewards_stock_non_negative"
   end
 
   create_table "users", force: :cascade do |t|
@@ -36,6 +38,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_145005) do
     t.integer "point_balance", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.check_constraint "point_balance >= 0", name: "users_point_balance_non_negative"
   end
 
   add_foreign_key "redemptions", "rewards"

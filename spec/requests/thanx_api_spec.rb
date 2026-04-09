@@ -37,7 +37,14 @@ RSpec.describe "Thanx HTTP API", type: :request do
     end
 
     it "returns reward fields needed by clients" do
-      r = Reward.create!(name: "Mug", description: "Ceramic", stock: 2, point_cost: 75, active: true)
+      r = Reward.create!(
+        name: "Mug",
+        description: "Ceramic",
+        photo: "https://example.com/mug.jpg",
+        stock: 2,
+        point_cost: 75,
+        active: true,
+      )
 
       get "/rewards"
 
@@ -46,6 +53,7 @@ RSpec.describe "Thanx HTTP API", type: :request do
         "id" => r.id,
         "name" => "Mug",
         "description" => "Ceramic",
+        "photo" => "https://example.com/mug.jpg",
         "stock" => 2,
         "point_cost" => 75,
         "active" => true,
@@ -162,6 +170,37 @@ RSpec.describe "Thanx HTTP API", type: :request do
 
       expect(solo.reload.stock).to eq(0)
       expect(Redemption.where(reward_id: solo.id).count).to eq(1)
+    end
+
+    context "when service validation is bypassed (simulates a bug; DB CHECK is last resort)" do
+      before do
+        allow_any_instance_of(RedemptionService).to receive(:validate_redeem!).and_return(nil)
+      end
+
+      it "returns 500 and rolls back if point_balance would go negative" do
+        poor = User.create!(name: "Low", point_balance: 10)
+
+        post "/redeem", params: { user_id: poor.id, reward_id: reward.id }, as: :json
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body["error"]).to eq("integrity_error")
+        expect(poor.reload.point_balance).to eq(10)
+        expect(reward.reload.stock).to eq(2)
+        expect(Redemption.count).to eq(0)
+      end
+
+      it "returns 500 and rolls back if stock would go negative" do
+        empty_r = Reward.create!(name: "Zero", description: "x", stock: 0, point_cost: 50, active: true)
+        rich = User.create!(name: "Rich", point_balance: 500)
+
+        post "/redeem", params: { user_id: rich.id, reward_id: empty_r.id }, as: :json
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body["error"]).to eq("integrity_error")
+        expect(rich.reload.point_balance).to eq(500)
+        expect(empty_r.reload.stock).to eq(0)
+        expect(Redemption.count).to eq(0)
+      end
     end
   end
 

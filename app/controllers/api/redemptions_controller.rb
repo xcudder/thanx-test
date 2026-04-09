@@ -10,6 +10,11 @@ module Api
       render json: { error: e.error_code.to_s }, status: :unprocessable_content
     end
 
+    # CHECK constraints etc. — should not fire if validation runs; keeps JSON API on failure.
+    rescue_from ActiveRecord::StatementInvalid do
+      render json: { error: "integrity_error" }, status: :internal_server_error
+    end
+
     def redeem
       result = RedemptionService.redeem_reward(@user, @reward)
       render json: RedeemRedemptionSerializer.new(result).as_json, status: :created
