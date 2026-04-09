@@ -1,0 +1,7 @@
+import { createRoot } from "react-dom/client"
+import { App } from "./components/App"
+
+const rootEl = document.getElementById("thanx-root")
+if (rootEl) {
+  createRoot(rootEl).render(<App />)
+}

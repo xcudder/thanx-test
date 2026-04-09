@@ -2,13 +2,17 @@
   "name": "app",
   "private": true,
   "devDependencies": {
-    "esbuild": "^0.28.0"
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.2"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets"
+    "build": "esbuild app/javascript/application.tsx --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets --jsx=automatic",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hotwired/stimulus": "^3.2.2",
-    "@hotwired/turbo-rails": "^8.0.23"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   }
 }
