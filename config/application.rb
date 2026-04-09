@@ -17,7 +17,7 @@ module Thanx
     config.autoload_lib(ignore: %w(assets tasks))
 
     config.generators do |g|
-      g.test_framework false
+      g.test_framework :rspec
     end
 
     # Configuration for the application, engines, and railties goes here.
