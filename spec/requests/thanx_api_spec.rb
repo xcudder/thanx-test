@@ -225,6 +225,30 @@ RSpec.describe "Thanx HTTP API", type: :request do
       expect(rows.second["reward_name"]).to eq("A")
     end
 
+    it "loads reward names without an N+1 (at most one SELECT touching rewards)" do
+      user = User.create!(name: "Dee", point_balance: 1000)
+      r1 = Reward.create!(name: "A", description: "", stock: 5, point_cost: 10, active: true)
+      r2 = Reward.create!(name: "B", description: "", stock: 5, point_cost: 20, active: true)
+      Redemption.create!(user: user, reward: r1, points_spent: 10)
+      Redemption.create!(user: user, reward: r2, points_spent: 20)
+
+      reward_selects = []
+      sub = ActiveSupport::Notifications.subscribe("sql.active_record") do |*_, payload|
+        next if %w[SCHEMA CACHE].include?(payload[:name].to_s)
+
+        sql = payload[:sql].to_s
+        reward_selects << sql if /SELECT/i.match?(sql) && /"rewards"/.match?(sql)
+      end
+
+      get "/users/#{user.id}/redemption_history"
+
+      ActiveSupport::Notifications.unsubscribe(sub)
+
+      expect(response).to have_http_status(:ok)
+      expect(reward_selects.size).to eq(1),
+        "expected a single SELECT involving rewards, got #{reward_selects.size}: #{reward_selects.inspect}"
+    end
+
     it "returns an empty list when there are no redemptions" do
       user = User.create!(name: "Eve", point_balance: 0)
 
