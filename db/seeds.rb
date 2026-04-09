@@ -36,7 +36,7 @@ rewards_data = [
   [
     "Notebook",
     "Lined A5 notebook.",
-    "https://images.unsplash.com/photo-1517842645767-c639b880cd6b?w=800&q=80",
+    "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&q=80",
     30, 430, true,
   ],
   [

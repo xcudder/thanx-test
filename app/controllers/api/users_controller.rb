@@ -2,6 +2,13 @@ module Api
   class UsersController < BaseController
     before_action :set_user, only: %i[balance redemption_history]
 
+    def index
+      users = User.order(:id).select(:id, :name)
+      render json: {
+        users: users.map { |u| { id: u.id, name: u.name } },
+      }
+    end
+
     def balance
       # Inline JSON: only two scalars — a serializer would add indirection without real payoff.
       render json: {

@@ -1,9 +1,9 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import type { AppUser } from "@/lib/rewards-data";
+import type { UserOption } from "@/lib/rewards-data";
 
 interface UserSelectorProps {
-  users: AppUser[];
+  users: UserOption[];
   selectedId: string;
   onChange: (id: string) => void;
 }

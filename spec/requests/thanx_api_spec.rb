@@ -3,6 +3,22 @@
 require "rails_helper"
 
 RSpec.describe "Thanx HTTP API", type: :request do
+  describe "GET /users" do
+    it "returns all users with id and name ordered by id" do
+      first = User.create!(name: "First", point_balance: 0)
+      second = User.create!(name: "Second", point_balance: 1)
+
+      get "/users"
+
+      expect(response).to have_http_status(:ok)
+      rows = response.parsed_body["users"]
+      expect(rows).to eq([
+        { "id" => first.id, "name" => "First" },
+        { "id" => second.id, "name" => "Second" },
+      ])
+    end
+  end
+
   describe "GET /users/:id/balance" do
     it "returns the user's point balance" do
       user = User.create!(name: "Ada", point_balance: 1200)

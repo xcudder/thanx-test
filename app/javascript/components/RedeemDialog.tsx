@@ -13,12 +13,18 @@ import type { Reward } from "@/lib/rewards-data";
 interface RedeemDialogProps {
   reward: Reward | null;
   open: boolean;
-  onConfirm: () => void;
+  isSubmitting?: boolean;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
 }
 
-const RedeemDialog = ({ reward, open, onConfirm, onCancel }: RedeemDialogProps) => (
-  <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>
+const RedeemDialog = ({ reward, open, isSubmitting = false, onConfirm, onCancel }: RedeemDialogProps) => (
+  <AlertDialog
+    open={open}
+    onOpenChange={(o) => {
+      if (!o && !isSubmitting) onCancel();
+    }}
+  >
     <AlertDialogContent className="ui-alert-content--rounded">
       <AlertDialogHeader>
         <AlertDialogTitle className="ui-alert-title--xl">Redeem {reward?.name}?</AlertDialogTitle>
@@ -28,9 +34,18 @@ const RedeemDialog = ({ reward, open, onConfirm, onCancel }: RedeemDialogProps) 
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel className="ui-button--pill">Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm} className="ui-button--pill">
-          Confirm
+        <AlertDialogCancel className="ui-button--pill" disabled={isSubmitting}>
+          Cancel
+        </AlertDialogCancel>
+        <AlertDialogAction
+          onClick={(e) => {
+            e.preventDefault();
+            void onConfirm();
+          }}
+          className="ui-button--pill"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Working…" : "Confirm"}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
