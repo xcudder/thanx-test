@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/hooks/use-toast";
-import PointsBalance from "@/components/PointsBalance";
-import RewardCard from "@/components/RewardCard";
-import RedeemDialog from "@/components/RedeemDialog";
-import RedemptionHistory from "@/components/RedemptionHistory";
-import UserSelector from "@/components/UserSelector";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/lovable-ui/tabs";
+import { toast } from "@/components/lovable-ui/use-toast";
+import PointsBalance from "@/components/reward-hub/PointsBalance";
+import RewardCard from "@/components/reward-hub/RewardCard";
+import RedeemDialog from "@/components/reward-hub/RedeemDialog";
+import RedemptionHistory from "@/components/reward-hub/RedemptionHistory";
+import UserSelector from "@/components/reward-hub/UserSelector";
 import type { Redemption, Reward, UserOption } from "@/lib/rewards-data";
 import { mapHistoryRow, mapRewardDto, initialsFromName } from "@/lib/rewardHubMappers";
 import { ApiError } from "@/services/http";

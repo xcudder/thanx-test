@@ -7,7 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/lovable-ui/alert-dialog";
 import type { Reward } from "@/lib/rewards-data";
 
 interface RedeemDialogProps {

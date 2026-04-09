@@ -1,5 +1,5 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/lovable-ui/select";
+import { Avatar, AvatarFallback } from "@/components/lovable-ui/avatar";
 import type { UserOption } from "@/lib/rewards-data";
 
 interface UserSelectorProps {

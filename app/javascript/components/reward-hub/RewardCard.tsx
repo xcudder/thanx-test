@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/lovable-ui/button";
 import type { Reward } from "@/lib/rewards-data";
 import { cx } from "@/lib/utils";
 
