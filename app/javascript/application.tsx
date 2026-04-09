@@ -1,7 +1,7 @@
-import { createRoot } from "react-dom/client"
-import { App } from "./components/App"
+import { createRoot } from "react-dom/client";
+import App from "@/App";
 
-const rootEl = document.getElementById("thanx-root")
+const rootEl = document.getElementById("thanx-root");
 if (rootEl) {
-  createRoot(rootEl).render(<App />)
+  createRoot(rootEl).render(<App />);
 }

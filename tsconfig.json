@@ -9,7 +9,10 @@
     "skipLibCheck": true,
     "noEmit": true,
     "isolatedModules": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./app/javascript/*"]
+    }
   },
   "include": ["app/javascript/**/*.ts", "app/javascript/**/*.tsx"]
 }

@@ -1,11 +1,25 @@
 #!/usr/bin/env sh
 
+# Project root
+ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+cd "$ROOT_DIR" || exit 1
+
+# Foreman does not load asdf/rbenv shell hooks. Pin PATH to the Ruby in .ruby-version
+# (asdf shims alone can still resolve to a global default, e.g. from ~/.tool-versions).
+ASDF_ROOT="${ASDF_DIR:-$HOME/.asdf}"
+if [ -f "$ROOT_DIR/.ruby-version" ]; then
+  RUBY_VERSION="$(tr -d '[:space:]' < "$ROOT_DIR/.ruby-version")"
+  RUBY_BIN_DIR="$ASDF_ROOT/installs/ruby/$RUBY_VERSION/bin"
+  if [ -x "$RUBY_BIN_DIR/ruby" ]; then
+    export PATH="$RUBY_BIN_DIR:$PATH"
+  fi
+fi
+
 if gem list --no-installed --exact --silent foreman; then
   echo "Installing foreman..."
   gem install foreman
 fi
 
-# Default to port 3000 if not specified
 export PORT="${PORT:-3000}"
 
 exec foreman start -f Procfile.dev --env /dev/null "$@"
