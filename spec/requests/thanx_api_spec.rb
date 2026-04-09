@@ -19,6 +19,7 @@ RSpec.describe "Thanx HTTP API", type: :request do
       get "/users/999999/balance"
 
       expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body["error"]).to eq("not_found")
     end
   end
 
@@ -50,6 +51,15 @@ RSpec.describe "Thanx HTTP API", type: :request do
         "active" => true,
       )
     end
+
+    it "returns an empty rewards array when no rewards qualify" do
+      Reward.create!(name: "Out", description: "x", stock: 0, point_cost: 1, active: true)
+
+      get "/rewards"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["rewards"]).to eq([])
+    end
   end
 
   describe "POST /redeem" do
@@ -68,6 +78,8 @@ RSpec.describe "Thanx HTTP API", type: :request do
       expect(json["redemption"]["points_spent"]).to eq(100)
       expect(json["redemption"]["user_id"]).to eq(user.id)
       expect(json["redemption"]["reward_id"]).to eq(reward.id)
+      expect(json["redemption"]["id"]).to be_a(Integer)
+      expect(json["redemption"]["created_at"]).to match(/\A\d{4}-\d{2}-\d{2}T/)
 
       expect(user.reload.point_balance).to eq(400)
       expect(reward.reload.stock).to eq(1)
@@ -112,6 +124,10 @@ RSpec.describe "Thanx HTTP API", type: :request do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.parsed_body["error"]).to eq("reward_not_available")
+
+      expect(user.reload.point_balance).to eq(500)
+      expect(inactive.reload.stock).to eq(3)
+      expect(Redemption.count).to eq(0)
     end
 
     it "returns 404 when the user id is unknown" do
@@ -120,6 +136,7 @@ RSpec.describe "Thanx HTTP API", type: :request do
         as: :json
 
       expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body["error"]).to eq("not_found")
     end
 
     it "returns 404 when the reward id is unknown" do
@@ -128,6 +145,7 @@ RSpec.describe "Thanx HTTP API", type: :request do
         as: :json
 
       expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body["error"]).to eq("not_found")
     end
 
     it "rejects a second redeem when only one unit was left" do
@@ -162,6 +180,9 @@ RSpec.describe "Thanx HTTP API", type: :request do
       expect(rows.length).to eq(2)
       expect(rows.first["reward_name"]).to eq("B")
       expect(rows.first["points_spent"]).to eq(20)
+      expect(rows.first["reward_id"]).to eq(r2.id)
+      expect(rows.first["id"]).to be_a(Integer)
+      expect(rows.first["created_at"]).to match(/\A\d{4}-\d{2}-\d{2}T/)
       expect(rows.second["reward_name"]).to eq("A")
     end
 
@@ -178,6 +199,7 @@ RSpec.describe "Thanx HTTP API", type: :request do
       get "/users/999999/redemption_history"
 
       expect(response).to have_http_status(:not_found)
+      expect(response.parsed_body["error"]).to eq("not_found")
     end
   end
 end
