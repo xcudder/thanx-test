@@ -1,5 +1,3 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/lovable-ui/select";
-import { Avatar, AvatarFallback } from "@/components/lovable-ui/avatar";
 import type { UserOption } from "@/lib/rewards-data";
 
 interface UserSelectorProps {
@@ -14,28 +12,23 @@ const UserSelector = ({ users, selectedId, onChange }: UserSelectorProps) => {
   return (
     <div className="user-selector">
       <span className="user-selector__label">Viewing as</span>
-      <Select value={selectedId} onValueChange={onChange}>
-        <SelectTrigger className="ui-select-trigger--user">
-          <div className="user-selector__row">
-            <Avatar className="ui-avatar--sm">
-              <AvatarFallback className="ui-avatar__fallback--primary">{selected?.avatar}</AvatarFallback>
-            </Avatar>
-            <SelectValue />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
+      <div className="user-selector__native-row">
+        <span className="user-selector__initials" aria-hidden>
+          {selected?.avatar ?? "?"}
+        </span>
+        <select
+          className="rh-native-select"
+          value={selectedId}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label="Select user"
+        >
           {users.map((u) => (
-            <SelectItem key={u.id} value={u.id}>
-              <div className="user-selector__row">
-                <Avatar className="ui-avatar--xs">
-                  <AvatarFallback className="ui-avatar__fallback--primary">{u.avatar}</AvatarFallback>
-                </Avatar>
-                {u.name}
-              </div>
-            </SelectItem>
+            <option key={u.id} value={u.id}>
+              {u.name}
+            </option>
           ))}
-        </SelectContent>
-      </Select>
+        </select>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 /*
- * Thanx app styles (plain CSS): tokens, layout, Reward Hub UI, Radix primitives.
+ * Thanx app styles (plain CSS): tokens, layout, Reward Hub UI.
+ * (Legacy Radix-oriented blocks below are unused after native UI swap — safe to delete later.)
  */
 
 /* Design tokens */
@@ -114,6 +115,186 @@ h3 {
   gap: 1.5rem;
 }
 
+/* ----- Native controls ----- */
+.rh-flash {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--rh-radius-md);
+  border: 1px solid var(--rh-border);
+  background: var(--rh-card);
+}
+
+.rh-flash--info {
+  border-color: hsla(262, 60%, 55%, 0.35);
+  background: hsla(262, 60%, 55%, 0.08);
+}
+
+.rh-flash--error {
+  border-color: hsla(0, 68%, 55%, 0.35);
+  background: hsla(0, 68%, 55%, 0.08);
+}
+
+.rh-flash__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rh-flash__title {
+  display: block;
+  font-size: 0.875rem;
+  margin: 0 0 0.25rem;
+}
+
+.rh-flash__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--rh-muted-fg);
+}
+
+.rh-flash__close {
+  flex-shrink: 0;
+  margin: -0.25rem -0.25rem -0.25rem 0;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: var(--rh-radius-sm);
+  background: transparent;
+  color: var(--rh-muted-fg);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rh-flash__close:hover {
+  color: var(--rh-fg);
+  background: hsla(240, 10%, 50%, 0.08);
+}
+
+.rh-tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rh-tab-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--rh-border);
+  border-radius: var(--rh-radius-md);
+  background: var(--rh-card);
+  color: var(--rh-muted-fg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rh-tab-btn:hover {
+  color: var(--rh-fg);
+  border-color: hsla(245, 10%, 80%, 1);
+}
+
+.rh-tab-btn--active {
+  color: var(--rh-primary-fg);
+  background: var(--rh-primary);
+  border-color: var(--rh-primary);
+}
+
+.rh-native-select {
+  min-width: 10rem;
+  max-width: 100%;
+  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  border: 1px solid var(--rh-input);
+  border-radius: var(--rh-radius-md);
+  background: var(--rh-card);
+  color: var(--rh-fg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.rh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: var(--rh-radius-md);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rh-btn--sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.rh-btn--primary {
+  background: var(--rh-primary);
+  color: var(--rh-primary-fg);
+}
+
+.rh-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.rh-btn--secondary {
+  background: var(--rh-card);
+  color: var(--rh-fg);
+  border-color: var(--rh-border);
+}
+
+.rh-btn--secondary:hover:not(:disabled) {
+  background: var(--rh-muted);
+}
+
+.rh-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: hsla(240, 10%, 10%, 0.45);
+}
+
+.rh-modal {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1.25rem;
+  border-radius: var(--rh-radius);
+  background: var(--rh-card);
+  color: var(--rh-card-fg);
+  border: 1px solid var(--rh-border);
+  box-shadow: 0 12px 40px hsla(240, 10%, 10%, 0.12);
+}
+
+.rh-modal__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.rh-modal__text {
+  margin: 0 0 1.25rem;
+  font-size: 0.875rem;
+  color: var(--rh-muted-fg);
+}
+
+.rh-modal__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
 .rh-reward-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -170,8 +351,8 @@ h3 {
 }
 
 .points-balance__icon {
-  width: 1rem;
-  height: 1rem;
+  line-height: 1;
+  font-size: 1rem;
   color: var(--rh-primary);
   flex-shrink: 0;
 }
@@ -278,9 +459,12 @@ h3 {
 }
 
 .redemption-history__empty-icon {
+  display: block;
   width: 2.5rem;
   height: 2.5rem;
   margin: 0 auto 0.75rem;
+  line-height: 2.5rem;
+  font-size: 1.5rem;
   opacity: 0.4;
 }
 
@@ -290,6 +474,9 @@ h3 {
 }
 
 .redemption-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -317,8 +504,9 @@ h3 {
 }
 
 .redemption-history__icon {
-  width: 1rem;
-  height: 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
   color: var(--rh-success);
 }
 
@@ -368,6 +556,26 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.user-selector__native-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-selector__initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: hsla(262, 60%, 55%, 0.15);
+  color: var(--rh-primary);
+  flex-shrink: 0;
 }
 
 /* ----- Not found ----- */

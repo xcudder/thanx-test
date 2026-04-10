@@ -1,7 +1,4 @@
-import { motion } from "framer-motion";
-import { Button } from "@/components/lovable-ui/button";
 import type { Reward } from "@/lib/rewards-data";
-import { cx } from "@/lib/utils";
 
 interface RewardCardProps {
   reward: Reward;
@@ -10,12 +7,7 @@ interface RewardCardProps {
 }
 
 const RewardCard = ({ reward, canAfford, onRedeem }: RewardCardProps) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="reward-card"
-  >
+  <article className="reward-card">
     <div className="reward-card__media">
       <img src={reward.image} alt={reward.name} loading="lazy" className="reward-card__img" />
     </div>
@@ -26,17 +18,17 @@ const RewardCard = ({ reward, canAfford, onRedeem }: RewardCardProps) => (
       </div>
       <div className="reward-card__footer">
         <span className="reward-card__cost">{reward.cost.toLocaleString()} pts</span>
-        <Button
-          size="sm"
+        <button
+          type="button"
+          className="rh-btn rh-btn--primary rh-btn--sm"
           disabled={!canAfford}
           onClick={() => onRedeem(reward)}
-          className={cx("ui-button--pill", "ui-button--reward-redeem")}
         >
           Redeem
-        </Button>
+        </button>
       </div>
     </div>
-  </motion.div>
+  </article>
 );
 
 export default RewardCard;

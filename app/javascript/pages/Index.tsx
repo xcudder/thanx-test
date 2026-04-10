@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/lovable-ui/tabs";
-import { toast } from "@/components/lovable-ui/use-toast";
 import PointsBalance from "@/components/reward-hub/PointsBalance";
 import RewardCard from "@/components/reward-hub/RewardCard";
 import RedeemDialog from "@/components/reward-hub/RedeemDialog";
 import RedemptionHistory from "@/components/reward-hub/RedemptionHistory";
 import UserSelector from "@/components/reward-hub/UserSelector";
+import FlashMessage, { type FlashPayload } from "@/components/reward-hub/FlashMessage";
 import type { Redemption, Reward, UserOption } from "@/lib/rewards-data";
 import { mapHistoryRow, mapRewardDto, initialsFromName } from "@/lib/rewardHubMappers";
 import { ApiError } from "@/services/http";
 import { fetchBalance, fetchRedemptionHistory, fetchUsers } from "@/services/usersService";
 import { fetchRewards } from "@/services/rewardsService";
 import { redeemReward } from "@/services/redemptionsService";
-import { Gift, History } from "lucide-react";
 
 function redeemErrorMessage(code: string | undefined): string {
   switch (code) {
@@ -25,6 +23,8 @@ function redeemErrorMessage(code: string | undefined): string {
   }
 }
 
+type Panel = "browse" | "history";
+
 const Index = () => {
   const [userOptions, setUserOptions] = useState<UserOption[]>([]);
   const [activeUserId, setActiveUserId] = useState("");
@@ -32,9 +32,16 @@ const Index = () => {
   const [points, setPoints] = useState(0);
   const [history, setHistory] = useState<Redemption[]>([]);
   const [bootLoading, setBootLoading] = useState(true);
+  const [panel, setPanel] = useState<Panel>("browse");
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [redeemSubmitting, setRedeemSubmitting] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
+  const [flash, setFlash] = useState<FlashPayload | null>(null);
+
+  const dismissFlash = useCallback(() => setFlash(null), []);
+
+  const handleCancelRedeem = useCallback(() => {
+    if (!redeemSubmitting) setSelectedReward(null);
+  }, [redeemSubmitting]);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,10 +61,10 @@ const Index = () => {
         setActiveUserId(firstId);
       } catch {
         if (!cancelled) {
-          toast({
+          setFlash({
+            variant: "error",
             title: "Could not load rewards",
             description: "Check that the Rails server is running and the database is seeded.",
-            variant: "destructive",
           });
         }
       } finally {
@@ -81,7 +88,7 @@ const Index = () => {
         setHistory(hist.redemptions.map(mapHistoryRow));
       } catch {
         if (!cancelled) {
-          toast({ title: "Could not load user", variant: "destructive" });
+          setFlash({ variant: "error", title: "Could not load user" });
         }
       }
     })();
@@ -105,26 +112,29 @@ const Index = () => {
       setPoints(bal.point_balance);
       setHistory(hist.redemptions.map(mapHistoryRow));
       setRewards(rewardsRes.rewards.map(mapRewardDto));
-      setAnimKey((k) => k + 1);
       const name = userOptions.find((u) => u.id === activeUserId)?.name ?? "User";
-      toast({
+      setFlash({
+        variant: "info",
         title: `${selectedReward.name} redeemed!`,
         description: `${selectedReward.cost.toLocaleString()} points deducted from ${name}.`,
       });
       setSelectedReward(null);
     } catch (e) {
       if (e instanceof ApiError && e.status === 422) {
-        const code = typeof e.body === "object" && e.body && "error" in e.body ? String((e.body as { error: string }).error) : undefined;
-        toast({
+        const code =
+          typeof e.body === "object" && e.body && "error" in e.body
+            ? String((e.body as { error: string }).error)
+            : undefined;
+        setFlash({
+          variant: "error",
           title: "Could not redeem",
           description: redeemErrorMessage(code),
-          variant: "destructive",
         });
       } else {
-        toast({
+        setFlash({
+          variant: "error",
           title: "Could not redeem",
           description: "Something went wrong. Try again.",
-          variant: "destructive",
         });
       }
     } finally {
@@ -155,6 +165,8 @@ const Index = () => {
   return (
     <div className="rh-page">
       <div className="rh-page__inner rh-page__stack">
+        <FlashMessage flash={flash} onDismiss={dismissFlash} />
+
         <div className="rh-toolbar">
           <div>
             <h1 className="rh-title">Rewards</h1>
@@ -163,30 +175,42 @@ const Index = () => {
           <UserSelector users={userOptions} selectedId={activeUserId} onChange={setActiveUserId} />
         </div>
 
-        <PointsBalance points={points} animateKey={animKey} />
+        <PointsBalance points={points} />
 
-        <Tabs defaultValue="browse" className="rh-tabs-panel">
-          <TabsList className="ui-tabs-list--full">
-            <TabsTrigger value="browse" className="ui-tabs-trigger--pill">
-              <Gift className="ui-tabs-trigger__icon" /> Browse
-            </TabsTrigger>
-            <TabsTrigger value="history" className="ui-tabs-trigger--pill">
-              <History className="ui-tabs-trigger__icon" /> History
-            </TabsTrigger>
-          </TabsList>
+        <div className="rh-tabs-panel">
+          <div className="rh-tab-bar" role="tablist" aria-label="Rewards sections">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={panel === "browse"}
+              className={`rh-tab-btn${panel === "browse" ? " rh-tab-btn--active" : ""}`}
+              onClick={() => setPanel("browse")}
+            >
+              Browse
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={panel === "history"}
+              className={`rh-tab-btn${panel === "history" ? " rh-tab-btn--active" : ""}`}
+              onClick={() => setPanel("history")}
+            >
+              History
+            </button>
+          </div>
 
-          <TabsContent value="browse">
-            <div className="rh-reward-grid">
+          {panel === "browse" ? (
+            <div className="rh-reward-grid" role="tabpanel">
               {rewards.map((r) => (
                 <RewardCard key={r.id} reward={r} canAfford={points >= r.cost} onRedeem={setSelectedReward} />
               ))}
             </div>
-          </TabsContent>
-
-          <TabsContent value="history">
-            <RedemptionHistory history={history} />
-          </TabsContent>
-        </Tabs>
+          ) : (
+            <div role="tabpanel">
+              <RedemptionHistory history={history} />
+            </div>
+          )}
+        </div>
       </div>
 
       <RedeemDialog
@@ -194,7 +218,7 @@ const Index = () => {
         open={!!selectedReward}
         isSubmitting={redeemSubmitting}
         onConfirm={handleRedeem}
-        onCancel={() => !redeemSubmitting && setSelectedReward(null)}
+        onCancel={handleCancelRedeem}
       />
     </div>
   );
