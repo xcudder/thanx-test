@@ -16,9 +16,6 @@ gem "puma", ">= 5.0"
 # Bundle and transpile JavaScript [https://github.com/rails/jsbundling-rails]
 gem "jsbundling-rails"
 
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
-
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 

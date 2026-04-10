@@ -2,12 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe User, type: :model do
-  describe "point_balance CHECK constraint" do
-    it "rejects negative balances at the database" do
-      user = User.create!(name: "Test", point_balance: 0)
+RSpec.describe User do
+  it "requires a name" do
+    expect(described_class.new(name: "", point_balance: 0)).not_to be_valid
+  end
 
-      expect { user.update!(point_balance: -1) }.to raise_error(ActiveRecord::StatementInvalid)
-    end
+  it "requires a non-negative integer point_balance" do
+    expect(described_class.new(name: "A", point_balance: -1)).not_to be_valid
+    expect(described_class.new(name: "A", point_balance: 1.5)).not_to be_valid
   end
 end

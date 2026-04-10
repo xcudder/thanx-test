@@ -2,18 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe Reward, type: :model do
-  describe "stock CHECK constraint" do
-    it "rejects negative stock at the database" do
-      reward = Reward.create!(
-        name: "Item",
-        description: "x",
-        stock: 0,
-        point_cost: 1,
-        active: true,
-      )
+RSpec.describe Reward do
+  it "requires a name" do
+    expect(described_class.new(name: "", description: "x", stock: 1, point_cost: 1, active: true)).not_to be_valid
+  end
 
-      expect { reward.update!(stock: -1) }.to raise_error(ActiveRecord::StatementInvalid)
-    end
+  it "requires non-negative integer point_cost and stock" do
+    expect(described_class.new(name: "R", description: "x", stock: -1, point_cost: 10, active: true)).not_to be_valid
+    expect(described_class.new(name: "R", description: "x", stock: 1, point_cost: -1, active: true)).not_to be_valid
   end
 end

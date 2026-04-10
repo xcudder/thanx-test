@@ -195,6 +195,10 @@ RSpec.describe "Thanx HTTP API", type: :request do
 
       it "returns 500 and rolls back if point_balance would go negative" do
         poor = User.create!(name: "Low", point_balance: 10)
+        # Model validations normally stop this first; stub so the request hits the DB constraint.
+        allow_any_instance_of(User).to receive(:update!) do |user, attrs|
+          user.update_columns(attrs.transform_keys(&:to_s))
+        end
 
         post "/redeem", params: { user_id: poor.id, reward_id: reward.id }, as: :json
 
@@ -208,6 +212,9 @@ RSpec.describe "Thanx HTTP API", type: :request do
       it "returns 500 and rolls back if stock would go negative" do
         empty_r = Reward.create!(name: "Zero", description: "x", stock: 0, point_cost: 50, active: true)
         rich = User.create!(name: "Rich", point_balance: 500)
+        allow_any_instance_of(Reward).to receive(:update!) do |r, attrs|
+          r.update_columns(attrs.transform_keys(&:to_s))
+        end
 
         post "/redeem", params: { user_id: rich.id, reward_id: empty_r.id }, as: :json
 

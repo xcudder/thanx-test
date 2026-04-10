@@ -1,7 +1,9 @@
 module Api
   class RedemptionsController < BaseController
-    # +lock.find+ row locks are held until the DB transaction ends; the transaction must
-    # therefore wrap these before_actions as well as +redeem+.
+    # Row-level locks on User and Reward serialize concurrent redeems that touch the same rows.
+    # Without them, two requests could both read stale balance/stock, pass validation, and corrupt
+    # state (e.g. double-spend the last unit). +lock.find+ holds until the transaction commits.
+    # The transaction must wrap +set_user+, +set_reward+, and +redeem+ so locks stay in scope.
     around_action :with_redeem_transaction, only: [:redeem]
     before_action :set_user, only: [:redeem]
     before_action :set_reward, only: [:redeem]
@@ -17,7 +19,7 @@ module Api
 
     def redeem
       result = RedemptionService.redeem_reward(@user, @reward)
-      render json: RedeemRedemptionSerializer.new(result).as_json, status: :created
+      render json: RedeemResponseSerializer.new(result).as_json, status: :created
     end
 
     private

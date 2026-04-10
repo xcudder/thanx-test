@@ -1,4 +1,4 @@
-class RedeemRedemptionSerializer
+class RedeemResponseSerializer
   def initialize(result)
     @redemption = result.redemption
     @user = result.user
