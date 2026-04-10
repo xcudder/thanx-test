@@ -1,24 +1,60 @@
-# README
+# Thanx
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Rails API + React (TypeScript) Reward Hub UI, SQLite in development.
 
-Things you may want to cover:
+## Prerequisites
 
-* Ruby version
+- **Ruby** 3.4.3 (see `.ruby-version`)
+- **Bundler**
+- **Node.js** and **Yarn** (Classic v1 is fine)
+- **SQLite 3** (for the `sqlite3` gem)
 
-* System dependencies
+No Docker is required.
 
-* Configuration
+## First-time setup
 
-* Database creation
+```bash
+bundle install
+yarn install
+bin/rails db:setup
+```
 
-* Database initialization
+`db:setup` creates the database, loads the schema, and runs seeds. Use `bin/rails db:prepare` instead if you already have a database and only need migrations + seed.
 
-* How to run the test suite
+## Run the application locally
 
-* Services (job queues, cache servers, search engines, etc.)
+There is no separate frontend dev server. esbuild writes JavaScript into `app/assets/builds/`, and Rails serves it with the HTML shell.
 
-* Deployment instructions
+**Terminal 1 — rebuild JS when files change:**
 
-* ...
+```bash
+yarn build --watch
+```
+
+**Terminal 2 — web server:**
+
+```bash
+bin/rails server
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+For a one-off build (no watch), run `yarn build` once before or after starting Rails.
+
+### Optional: one process
+
+If you have Foreman installed (`gem install foreman`):
+
+```bash
+bin/dev
+```
+
+That runs the same Rails server plus `yarn build --watch` together (see `Procfile.dev`).
+
+## Useful commands
+
+| Command | Purpose |
+|--------|---------|
+| `yarn typecheck` | TypeScript check only |
+| `yarn build` | Single production-style JS bundle |
+| `bundle exec rspec` | Run the request specs (if configured) |
