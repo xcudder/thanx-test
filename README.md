@@ -2,6 +2,8 @@
 
 Rails API + React (TypeScript) Reward Hub UI, SQLite in development.
 
+For further details on the AI usage that was undertook for this check out **[AI_USAGE.md](./AI_USAGE.md)**.
+
 ## Prerequisites
 
 - **Ruby** 3.4.3 (see `.ruby-version`)
