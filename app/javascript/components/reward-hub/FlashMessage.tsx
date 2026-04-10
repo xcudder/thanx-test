@@ -1,15 +1,5 @@
 import { useEffect } from "react";
-
-export type FlashPayload = {
-  title: string;
-  description?: string;
-  variant: "info" | "error";
-};
-
-interface FlashMessageProps {
-  flash: FlashPayload | null;
-  onDismiss: () => void;
-}
+import type { FlashMessageProps } from "@/types/reward-hub";
 
 const FlashMessage = ({ flash, onDismiss }: FlashMessageProps) => {
   useEffect(() => {

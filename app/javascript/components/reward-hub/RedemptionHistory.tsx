@@ -1,4 +1,4 @@
-import type { Redemption } from "@/lib/rewards-data";
+import type { Redemption } from "@/types/reward-hub";
 
 interface RedemptionHistoryProps {
   history: Redemption[];
@@ -26,9 +26,9 @@ const RedemptionHistory = ({ history }: RedemptionHistoryProps) => {
             </span>
           </div>
           <div className="redemption-history__main">
-            <p className="redemption-history__title">{item.rewardName}</p>
+            <p className="redemption-history__title">{item.reward_name}</p>
             <p className="redemption-history__meta">
-              {item.redeemedAt.toLocaleDateString(undefined, {
+              {new Date(item.created_at).toLocaleDateString(undefined, {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
@@ -37,7 +37,7 @@ const RedemptionHistory = ({ history }: RedemptionHistoryProps) => {
               })}
             </p>
           </div>
-          <span className="redemption-history__cost">−{item.cost.toLocaleString()} pts</span>
+          <span className="redemption-history__cost">−{item.points_spent.toLocaleString()} pts</span>
         </li>
       ))}
     </ul>

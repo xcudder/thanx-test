@@ -12,4 +12,11 @@ Rails.application.routes.draw do
   post "redeem", to: "api/redemptions#redeem"
 
   root "home#index"
+  # SPA: unknown paths load the same shell so React Router can show NotFound.
+  # Exclude asset pipeline and engine mounts.
+  get "*path",
+      to: "home#index",
+      constraints: lambda { |req|
+        !req.path.start_with?("/rails/", "/assets/", "/packs/")
+      }
 end

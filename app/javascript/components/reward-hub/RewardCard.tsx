@@ -1,4 +1,7 @@
-import type { Reward } from "@/lib/rewards-data";
+import type { Reward } from "@/types/reward-hub";
+
+const REWARD_IMAGE_FALLBACK =
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80";
 
 interface RewardCardProps {
   reward: Reward;
@@ -9,7 +12,12 @@ interface RewardCardProps {
 const RewardCard = ({ reward, canAfford, onRedeem }: RewardCardProps) => (
   <article className="reward-card">
     <div className="reward-card__media">
-      <img src={reward.image} alt={reward.name} loading="lazy" className="reward-card__img" />
+      <img
+        src={reward.photo ?? REWARD_IMAGE_FALLBACK}
+        alt={reward.name}
+        loading="lazy"
+        className="reward-card__img"
+      />
     </div>
     <div className="reward-card__body">
       <div className="reward-card__text">
@@ -17,7 +25,7 @@ const RewardCard = ({ reward, canAfford, onRedeem }: RewardCardProps) => (
         <p className="reward-card__desc">{reward.description}</p>
       </div>
       <div className="reward-card__footer">
-        <span className="reward-card__cost">{reward.cost.toLocaleString()} pts</span>
+        <span className="reward-card__cost">{reward.point_cost.toLocaleString()} pts</span>
         <button
           type="button"
           className="rh-btn rh-btn--primary rh-btn--sm"

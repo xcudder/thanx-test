@@ -1,6 +1,5 @@
+import type { ApiUser, Redemption } from "@/types/reward-hub";
 import { parseJson } from "@/services/http";
-
-export type ApiUser = { id: number; name: string };
 
 export async function fetchUsers(): Promise<ApiUser[]> {
   const res = await fetch("/users", { headers: { Accept: "application/json" } });
@@ -13,15 +12,7 @@ export async function fetchBalance(userId: number): Promise<{ user_id: number; p
   return parseJson(res);
 }
 
-export type RedemptionHistoryRow = {
-  id: number;
-  reward_id: number;
-  reward_name: string;
-  points_spent: number;
-  created_at: string;
-};
-
-export async function fetchRedemptionHistory(userId: number): Promise<{ redemptions: RedemptionHistoryRow[] }> {
+export async function fetchRedemptionHistory(userId: number): Promise<{ redemptions: Redemption[] }> {
   const res = await fetch(`/users/${userId}/redemption_history`, { headers: { Accept: "application/json" } });
   return parseJson(res);
 }

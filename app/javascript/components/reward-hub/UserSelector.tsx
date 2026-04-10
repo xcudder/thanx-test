@@ -1,4 +1,4 @@
-import type { UserOption } from "@/lib/rewards-data";
+import type { UserOption } from "@/types/reward-hub";
 
 interface UserSelectorProps {
   users: UserOption[];

@@ -1,13 +1,5 @@
 import { useEffect } from "react";
-import type { Reward } from "@/lib/rewards-data";
-
-interface RedeemDialogProps {
-  reward: Reward | null;
-  open: boolean;
-  isSubmitting?: boolean;
-  onConfirm: () => void | Promise<void>;
-  onCancel: () => void;
-}
+import type { RedeemDialogProps } from "@/types/reward-hub";
 
 const RedeemDialog = ({ reward, open, isSubmitting = false, onConfirm, onCancel }: RedeemDialogProps) => {
   useEffect(() => {
@@ -34,7 +26,8 @@ const RedeemDialog = ({ reward, open, isSubmitting = false, onConfirm, onCancel 
           Redeem {reward.name}?
         </h2>
         <p className="rh-modal__text">
-          This will deduct <strong>{reward.cost.toLocaleString()} pts</strong> from your balance. This cannot be undone.
+          This will deduct <strong>{reward.point_cost.toLocaleString()} pts</strong> from your balance. This cannot be
+          undone.
         </p>
         <div className="rh-modal__actions">
           <button type="button" className="rh-btn rh-btn--secondary" disabled={isSubmitting} onClick={onCancel}>
