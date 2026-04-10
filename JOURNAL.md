@@ -42,3 +42,31 @@ Brief log of iterations and how we built things. Newest entries at the bottom.
 - **Controller split:** `Api::RedemptionsController` uses **`around_action`** so **`ActiveRecord::Base.transaction`** wraps **`before_action`** `set_user` / `set_reward` (`User.lock.find` / `Reward.lock.find` via strong params) **and** `redeem`. That way row locks are still held for the whole redeem (locks are not “before the transaction” in a separate auto-commit scope).
 - **Response shape:** `RedeemRedemptionSerializer`; `config.autoload_paths << app/serializers` for Zeitwerk.
 - **Design thread (conversation):** Explored service object vs fat controller — correctness hinges on **transaction + lock scope**, not on whether a `Service` class exists. Discussed `lock` vs transaction (different concepts; multi-step redeem needs both in one transaction). Naming moved from generic `call` to `redeem_reward`; `code` → `error_code` on `Unredeemable`. Removed the old `app/services/redemptions/redeem_reward.rb` in favor of `RedemptionService`.
+
+## Iteration 6 — Reward Hub UI: native controls and lean JS deps
+
+- **Goal:** Keep Thanx / `rh-*` branding and layout tokens, but drop Radix / Lovable-style polish in favor of padded native `<select>`, simple modal markup, tab buttons (state toggles panels), and unicode or text where icons were.
+- **App shell:** `App.tsx` trimmed to `BrowserRouter` + routes only (no React Query / tooltip / toaster wrappers).
+- **Components:** `FlashMessage` (auto-dismiss + dismiss control) replaces toast hook; `UserSelector` uses a native select + initials badge; `RedeemDialog` is a focusable modal with backdrop + Escape; `RewardCard` / `PointsBalance` / `RedemptionHistory` use plain elements (no Framer / Lucide); `Index` drives `browse | history` with two `role="tab"` buttons.
+- **Removed:** Entire `app/javascript/components/lovable-ui/`; `package.json` dependencies dropped `@radix-ui/*`, `@tanstack/react-query`, `framer-motion`, `lucide-react`; `yarn install` refreshed the lockfile.
+- **Styles:** `application.css` gained blocks for `.rh-flash*`, `.rh-tab-bar` / `.rh-tab-btn*`, `.rh-native-select`, `.rh-modal*`, `.rh-btn*`, user-selector native row / initials, list resets for history `<ul>`, and small tweaks for unicode “icons” in balance / history.
+- **Note:** A large legacy `.ui-*` / Radix-oriented section may still exist in CSS as dead weight — safe to delete in a later cleanup.
+
+## Iteration 7 — Front-end types = API shapes; SPA-friendly routing
+
+- **Goal:** Stop renaming JSON fields in the client; if naming is wrong, fix the API. Centralize TypeScript types and context contracts.
+- **Types:** `app/javascript/types/reward-hub.ts` — `Reward`, `Redemption` (history row), `ApiUser`, `UserOption`, flash / dialog props, `RewardHubPanel`. Removed `lib/rewards-data.ts` and `lib/rewardHubMappers.ts`.
+- **Services:** `rewardsService` / `usersService` import those types; responses use the same property names as Rails JSON (`point_cost`, `photo`, `reward_name`, `points_spent`, `created_at`, etc.).
+- **Fallback image:** `REWARD_IMAGE_FALLBACK` lives next to its use in `RewardCard` (`photo ?? fallback`).
+- **Context typing:** `types/reward-hub-context.ts` holds `RewardHubContextValue` (and later redeem-hook params/return).
+- **Rails routes:** Catch-all `GET *path` → `home#index` **after** explicit API routes, with `constraints` excluding `/rails/`, `/assets/`, `/packs/` so the SPA shell loads for unknown client paths while assets and engines still work. Full reloads on `/foo` can hit React `NotFound` instead of only `public/404.html`.
+- **`NotFound.tsx`:** Simplified (no `useLocation` / `console.error`); static pages `public/404.html`, `422.html`, `500.html` kept for real server errors.
+
+## Iteration 8 — RewardHub context modularization and readable redeem path
+
+- **Goal:** Keep `RewardHubContext` mostly “when to load what” (effects) and composition; push orchestration helpers and redeem logic into named modules and a dedicated hook.
+- **Layout components:** `RewardHubToolbar` (title + `UserSelector`), `RewardHubTabs` (tab bar + `browsePanel` / `historyPanel` slots) slim `Index.tsx`.
+- **`RewardHubProvider`:** Two `useEffect`s — **(1)** one-time bootstrap via `runInitialRewardHubBootstrap` (`lib/rewardHub/boot.ts` + `fetchRewardHubBootPayload` / `userOptionsFromApiUsers`); **(2)** wallet + history when `activeUserId` changes via `loadUserWalletFromServer` (`walletCatalog.ts`). Comments above each effect document intent so readers do not infer only from dependency arrays.
+- **Flashes & errors:** `lib/rewardHub/flashPayloads.ts` (boot failure, user load failure, redeem success / 422 / generic); `lib/rewardHub/redeemApiErrors.ts` (`redeemRejectionCodeFrom422Body`, `userMessageForRedeemRejectionCode`).
+- **`useRewardHubRedeem`:** Lives under `lib/rewardHub/`; **owns** `selectedReward`, `redeemSubmitting`, `handleRedeem`, `handleCancelRedeem`. Parent passes only `activeUserId`, `userOptions`, and setters for **server-backed** slices: points, history, rewards, flash (`UseRewardHubRedeemParams` / `UseRewardHubRedeemReturn` in `types/reward-hub-context.ts`).
+- **Readability tweaks:** After successful POST, `loadWalletAndRewardsAfterRedeem` returns a `WalletCatalogRefreshSnapshot`; `applyWalletCatalogRefresh(snapshot, { setPoints, setHistory, setRewards })` applies it in one named step. `clearSelectedReward()` wraps `setSelectedReward(null)` for cancel + post-success cleanup.
