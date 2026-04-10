@@ -190,12 +190,15 @@ RSpec.describe "Thanx HTTP API", type: :request do
 
     context "when service validation is bypassed (simulates a bug; DB CHECK is last resort)" do
       before do
+        # Instance built inside .redeem_reward; allow_any_instance_of is the only hook without
+        # changing how the service is constructed.
         allow_any_instance_of(RedemptionService).to receive(:validate_redeem!).and_return(nil)
       end
 
       it "returns 500 and rolls back if point_balance would go negative" do
         poor = User.create!(name: "Low", point_balance: 10)
         # Model validations normally stop this first; stub so the request hits the DB constraint.
+        # User is lock.find'd inside the transaction; no in-spec reference to stub directly.
         allow_any_instance_of(User).to receive(:update!) do |user, attrs|
           user.update_columns(attrs.transform_keys(&:to_s))
         end
@@ -212,6 +215,7 @@ RSpec.describe "Thanx HTTP API", type: :request do
       it "returns 500 and rolls back if stock would go negative" do
         empty_r = Reward.create!(name: "Zero", description: "x", stock: 0, point_cost: 50, active: true)
         rich = User.create!(name: "Rich", point_balance: 500)
+        # Reward is lock.find'd inside the transaction; same allow_any_instance_of rationale as User above.
         allow_any_instance_of(Reward).to receive(:update!) do |r, attrs|
           r.update_columns(attrs.transform_keys(&:to_s))
         end
